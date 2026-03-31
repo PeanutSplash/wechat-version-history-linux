@@ -31,18 +31,21 @@ jobs:
           timeout_minutes: 5
           max_attempts: 5
           command: python ./scripts/check-update.py
-      - name: Download WeChat
+      - name: Download WeChat Linux Packages
         if: steps.check-update.outputs.released != 'none'
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 10
+          timeout_minutes: 30
           max_attempts: 5
           command: |
-            mkdir -p downloads # Create directory `downloads` if not exists
-            wget -q -P downloads ${{ steps.check-update.outputs.url }}
-      - name: Install Dependencies
-        if: steps.check-update.outputs.released != 'none'
-        run: sudo apt-get install -y p7zip-full
+            mkdir -p downloads
+            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb
+            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.rpm
+            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.AppImage
+            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.deb
+            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.rpm
+            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.AppImage
+            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_LoongArch.deb
       - name: Do Update
         id: do-update
         if: steps.check-update.outputs.released != 'none'

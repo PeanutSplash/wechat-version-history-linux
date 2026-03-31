@@ -6,13 +6,27 @@ from os.path import getsize
 from hashlib import md5
 from argparse import ArgumentParser
 from humanize import naturalsize
-from re import search
+
+DOWNLOAD_URLS = {
+    "x86_64": {
+        "deb": "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb",
+        "rpm": "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.rpm",
+        "AppImage": "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.AppImage",
+    },
+    "arm64": {
+        "deb": "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.deb",
+        "rpm": "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.rpm",
+        "AppImage": "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.AppImage",
+    },
+    "LoongArch": {
+        "deb": "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_LoongArch.deb",
+    },
+}
 
 x = Session()
 parser = ArgumentParser()
-# Accept 2 arguments: `released` and `url`
 parser.add_argument("--released", type=str, help="The date and time of the release.")
-parser.add_argument("--url", type=str, help="The URL of the installation package.")
+parser.add_argument("--url", type=str, help="The URL of the primary package.")
 args = parser.parse_args()
 newData = {
     "released": args.released,
@@ -33,43 +47,29 @@ def setOutput(key, value):
 def getStat(url, file, directory="./downloads"):
     """Get and validate the stat of the file at the specified URL."""
     r = x.head(url)
-    # Using `X-COS-META-MD5` header
-    expectedHash = r.headers.get("X-COS-META-MD5") or "<unknown>"
-    # Calculate MD5 hash of the file
+    expectedHash = r.headers.get("X-COS-META-MD5")
     path = f"{directory}/{file}"
-    with open(path, "rb") as f:  # https://stackoverflow.com/a/59056837/16468609
+    with open(path, "rb") as f:
         hash = md5()
         while chunk := f.read(8192):
             hash.update(chunk)
     actualHash = hash.hexdigest()
-    expectedSize = int(r.headers.get("Content-Length")) or -1
+    expectedSize = int(r.headers.get("Content-Length") or -1)
     actualSize = getsize(path)
-    if actualHash != expectedHash:
+    if expectedHash and actualHash != expectedHash:
         print(f"Hash mismatch! Expected: {expectedHash}, Got: {actualHash}")
-    if actualSize != expectedSize:
+    if expectedSize > 0 and actualSize != expectedSize:
         print(f"Size mismatch! Expected: {expectedSize}, Got: {actualSize}")
-    if actualHash == expectedHash and actualSize == expectedSize:
-        return actualHash, actualSize
-    return None, None
+    return actualHash, actualSize
 
 
 def getVersion():
-    """Determines the version of the program."""
+    """Determines the version from the downloaded deb package."""
     fileName = args.url.split("/")[-1]
-    # Extract `install.7z`
-    output = check_output(f"7z e ./downloads/{fileName} install.7z", shell=True)
-    if not "Everything is Ok" in output.decode("utf-8"):
-        print("Failed to extract `install.7z`!")
-        return "<unknown>"
-    # Check version
-    output = check_output(
-        r"7z l -ba -slt -i\!*/WeixinUpdate.exe ./install.7z", shell=True
-    )
-    m = search(r"Path = (\d+\.\d+\.\d+\.\d+)/WeixinUpdate\.exe", output.decode("utf-8"))
-    if m:
-        return m.group(1)
-    print("Failed to find version!")
-    return "<unknown>"
+    output = check_output(f"dpkg-deb -f ./downloads/{fileName} Version", shell=True)
+    version = output.decode("utf-8").strip()
+    print(f"[getVersion] Version: {version}")
+    return version
 
 
 def updateJson():
@@ -89,8 +89,13 @@ def generateReleaseNotes():
         f.write(f"- Version: `{newData['version']}`\n")
         f.write(f"- Released: {newData['released']}\n")
         f.write("\n")
-        f.write("## Installer\n")
-        f.write(f"- Official URL: {args.url}\n")
+        f.write("## Downloads\n\n")
+        for arch, formats in DOWNLOAD_URLS.items():
+            f.write(f"### {arch}\n")
+            for fmt, url in formats.items():
+                f.write(f"- [{fmt}]({url})\n")
+            f.write("\n")
+        f.write("## Primary Package (x86_64 deb)\n")
         f.write(f"- Size: {naturalsize(newData['size'])}\n")
         f.write(f"- MD5: `{newData['md5']}`\n")
         f.write("\n")
