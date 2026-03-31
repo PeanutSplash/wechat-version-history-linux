@@ -1,41 +1,40 @@
-# WeChat4-Version-History
+# 微信 Linux 版本历史
 
-English | [简体中文](README.zh-CN.md) |
-[![GitHub Release](https://img.shields.io/github/v/release/PRO-2684/WeChat4-Version-History?logo=wechat&color=07c160)](https://github.com/PRO-2684/WeChat4-Version-History/releases/latest)
-[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/PRO-2684/WeChat4-Version-History/total?logo=github)](https://github.com/PRO-2684/WeChat4-Version-History/releases)
+自动跟踪[微信 Linux 版](https://linux.weixin.qq.com/)的公开版本历史。
 
-> [!NOTE]
-> WeChat has changed the download URL from `https://dldir1v6.qq.com/weixin/Universal/Windows/WeChatWin.exe` to `https://dldir1v6.qq.com/weixin/Universal/Windows/WeChatWin_{version}.exe`, so this repo has missed some updates. To be specific, versions between `4.1.1.19` and `4.1.6` (non-inclusive) are missing.
+## 支持的平台与格式
 
-This repo automatically tracks public version history of [WeChat 4.0.0](https://pc.weixin.qq.com/), since `4.0.0.35` (2024-11-20).
+| 架构 | deb | rpm | AppImage |
+|------|-----|-----|----------|
+| x86_64 | ✅ | ✅ | ✅ |
+| arm64 | ✅ | ✅ | ✅ |
+| LoongArch | ✅ | — | — |
+
+## 下载地址
+
+- **x86_64**: [deb](https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb) / [rpm](https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.rpm) / [AppImage](https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.AppImage)
+- **arm64**: [deb](https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.deb) / [rpm](https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.rpm) / [AppImage](https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.AppImage)
+- **LoongArch**: [deb](https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_LoongArch.deb)
 
 ## [`versions.json`](versions.json)
 
-This file contains the version history of WeChat4 since `4.0.0.35`. It is structured as follows:
+此文件记录微信 Linux 版的版本历史，结构如下：
 
 ```json
 [
     {
-        "released": "<release date in ISO8601>",
-        "size": <installer size in bytes>,
-        "md5": "<installer MD5>",
-        "version": "<version number>",
-    },
-    ...
+        "released": "<ISO8601 格式的发布日期>",
+        "size": "<安装包大小（字节）>",
+        "md5": "<安装包 MD5>",
+        "version": "<版本号>"
+    }
 ]
 ```
 
-## Related Projects
+## 工作原理
 
-- [QQNT-Version-History](https://github.com/PRO-2684/qqnt-version-history): Automatically tracks version history of [QQNT](https://im.qq.com/pcqq/index.shtml).
-- [wechat-windows-versions](https://github.com/tom-snow/wechat-windows-versions): Automatically tracks version history of [WeChat3](https://pc.weixin.qq.com/).
+通过 GitHub Actions 定时检测 x86_64 deb 包的 `Last-Modified` 响应头来判断是否有新版本发布。检测到更新后，自动下载所有平台的安装包并记录版本信息。
 
-## Star History
+## 相关项目
 
-<a href="https://www.star-history.com/#PRO-2684/WeChat4-Version-History&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=PRO-2684/WeChat4-Version-History&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=PRO-2684/WeChat4-Version-History&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=PRO-2684/WeChat4-Version-History&type=Date" />
- </picture>
-</a>
+- [WeChat4-Version-History](https://github.com/PRO-2684/WeChat4-Version-History)：自动跟踪微信 Windows 版的版本历史。
