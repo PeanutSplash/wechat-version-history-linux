@@ -39,14 +39,15 @@ jobs:
           max_attempts: 5
           command: |
             mkdir -p downloads
-            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb &
-            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.rpm &
-            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.AppImage &
-            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.deb &
-            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.rpm &
-            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.AppImage &
-            wget -q -P downloads https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_LoongArch.deb &
-            wait
+            printf '%s\n' \
+              https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb \
+              https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.rpm \
+              https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.AppImage \
+              https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.deb \
+              https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.rpm \
+              https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.AppImage \
+              https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_LoongArch.deb \
+            | xargs -n1 -P7 wget -q -P downloads
       - name: Do Update
         id: do-update
         if: steps.check-update.outputs.released != 'none'
